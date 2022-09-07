@@ -1,58 +1,48 @@
-import { Component } from 'react'
+import { useState, useEffect } from 'react'
 
 import CardList from './components/card-list/card-list.component'
-import SearchBox from './components/search-box/search-box.component';
+import SearchBox from './components/search-box/search-box.component'
 
-import './App.css';
+import './App.css'
 
-class App extends Component {
-  constructor() {
-    super()
+const App = () => {
+    const [monsters, setMonsters] = useState([])
+    const [searchField, setSearchField] = useState('')
+    const [filteredMonsters, setFilsteredMonsters] = useState(monsters)
 
-    this.state = {
-      monsters: [],
-      searchField: ''
+    useEffect(() => {
+        fetch('https://jsonplaceholder.typicode.com/users')
+            .then((response) => response.json())
+            .then((users) => {
+                setMonsters(users)
+            })
+    },[])
+
+    useEffect(() => {
+      const newfilteredMonsters = monsters.filter((monster) => {
+        return monster.name.toLowerCase().includes(searchField)
+    })
+
+      setFilsteredMonsters(newfilteredMonsters)
+    },[monsters, searchField])
+
+    const onSearchChange = (event) => {
+        const search = event.target.value.toLowerCase()
+
+        setSearchField(search)
     }
-  }
-
-  componentDidMount() {
-    fetch('https://jsonplaceholder.typicode.com/users')
-      .then((response) => response.json())
-      .then((users) => {
-        this.setState(
-          () => {
-            return { monsters: users };
-          }
-        )
-      })
-  }
-
-  onSearchChange = (event) => {
-    const searchField = event.target.value.toLowerCase()
-
-    this.setState({
-      searchField
-    })
-  }
-
-  render() {
-    const { monsters, searchField } = this.state
-    const { onSearchChange } = this
-
-    const filteredMonsters = monsters.filter((monster) => {
-      return monster.name.toLowerCase().includes(searchField)
-    })
 
     return (
-      <div className="App">
-        <h1 className='app-title' >Monsters Rolodex</h1>
-        <SearchBox onChangeHandler={onSearchChange}
-          placeholder='search monster'
-          className='search-box' />
-        <CardList monsters={filteredMonsters} />
-      </div>
-    );
-  }
+        <div className="App">
+            <h1 className="app-title">Monsters Rolodex</h1>
+            <SearchBox
+                onChangeHandler={onSearchChange}
+                placeholder="search monster"
+                className="search-box"
+            />
+            <CardList monsters={filteredMonsters} />
+        </div>
+    )
 }
 
-export default App;
+export default App
